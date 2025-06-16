@@ -54,7 +54,12 @@ export class MemStorage implements IStorage {
 
   async createPhoto(insertPhoto: InsertPhoto): Promise<Photo> {
     const id = this.currentPhotoId++;
-    const photo: Photo = { ...insertPhoto, id };
+    const photo: Photo = { 
+      ...insertPhoto, 
+      id,
+      description: insertPhoto.description || '',
+      tags: insertPhoto.tags || []
+    };
     this.photos.set(id, photo);
     return photo;
   }
@@ -79,9 +84,9 @@ export class MemStorage implements IStorage {
     return allPhotos.filter(photo => {
       const matchesQuery = !query || 
         photo.title.toLowerCase().includes(searchTerm) ||
-        photo.description.toLowerCase().includes(searchTerm);
+        (photo.description && photo.description.toLowerCase().includes(searchTerm));
 
-      const matchesTag = !tag || photo.tags.includes(tag);
+      const matchesTag = !tag || (photo.tags && photo.tags.includes(tag));
 
       return matchesQuery && matchesTag;
     });

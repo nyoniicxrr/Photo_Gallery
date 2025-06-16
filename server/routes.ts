@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import path from "path";
@@ -107,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({ photos: uploadedPhotos });
-    } catch (error) {
+    } catch (error: any) {
       if (error.name === 'ZodError') {
         return res.status(400).json({ 
           message: fromZodError(error).toString() 
@@ -130,7 +131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(photo);
-    } catch (error) {
+    } catch (error: any) {
       if (error.name === 'ZodError') {
         return res.status(400).json({ 
           message: fromZodError(error).toString() 

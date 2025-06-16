@@ -11,8 +11,8 @@ export const users = pgTable("users", {
 export const photos = pgTable("photos", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  description: text("description").default(''),
-  tags: text("tags").array().default([]),
+  description: text("description").notNull().default(''),
+  tags: text("tags").array().notNull().default([]),
   filename: text("filename").notNull(),
   url: text("url").notNull(),
   size: integer("size").notNull(),
