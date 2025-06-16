@@ -1,9 +1,14 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { Upload, Lock, LogOut } from "lucide-react";
+import { useAdmin } from "@/hooks/use-admin";
+import AdminLogin from "@/components/admin-login";
 
 export default function Navigation() {
   const [location] = useLocation();
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const { isAdmin, logout } = useAdmin();
 
   const navItems = [
     { path: "/", label: "Home" },
@@ -38,15 +43,40 @@ export default function Navigation() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Link href="/gallery">
-              <Button className="bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
-                <Upload className="w-4 h-4 mr-2" />
-                Upload
+            {isAdmin ? (
+              <>
+                <Link href="/gallery">
+                  <Button className="bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload
+                  </Button>
+                </Link>
+                <Button
+                  onClick={logout}
+                  variant="outline"
+                  className="border-gray-600 hover:bg-gray-700 text-white"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={() => setShowAdminLogin(true)}
+                variant="outline"
+                className="border-gray-600 hover:bg-gray-700 text-white"
+              >
+                <Lock className="w-4 h-4 mr-2" />
+                Admin
               </Button>
-            </Link>
+            )}
           </div>
         </div>
       </div>
+      <AdminLogin 
+        open={showAdminLogin} 
+        onClose={() => setShowAdminLogin(false)} 
+      />
     </nav>
   );
 }

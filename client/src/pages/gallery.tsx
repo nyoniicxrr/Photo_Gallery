@@ -21,7 +21,7 @@ export default function Gallery() {
     queryFn: async () => {
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
-      if (selectedTag) params.append('tag', selectedTag);
+      if (selectedTag && selectedTag !== 'all') params.append('tag', selectedTag);
       
       const response = await fetch(`/api/photos?${params}`);
       if (!response.ok) throw new Error('Failed to fetch photos');
@@ -74,7 +74,7 @@ export default function Gallery() {
                 <SelectValue placeholder="All Tags" />
               </SelectTrigger>
               <SelectContent className="bg-dark-secondary border-gray-600">
-                <SelectItem value="">All Tags</SelectItem>
+                <SelectItem value="all">All Tags</SelectItem>
                 {allTags.map(tag => (
                   <SelectItem key={tag} value={tag}>{tag}</SelectItem>
                 ))}
