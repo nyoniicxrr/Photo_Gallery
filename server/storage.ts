@@ -1,4 +1,6 @@
 import { users, photos, type User, type InsertUser, type Photo, type InsertPhoto, type UpdatePhoto } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, or, like, arrayContains, and } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -14,83 +16,83 @@ export interface IStorage {
   searchPhotos(query: string, tag?: string): Promise<Photo[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private photos: Map<number, Photo>;
-  private currentUserId: number;
-  private currentPhotoId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.photos = new Map();
-    this.currentUserId = 1;
-    this.currentPhotoId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async getAllPhotos(): Promise<Photo[]> {
-    return Array.from(this.photos.values()).sort((a, b) => b.id - a.id);
+    return await db.select().from(photos).orderBy(desc(photos.id));
   }
 
   async getPhoto(id: number): Promise<Photo | undefined> {
-    return this.photos.get(id);
+    const [photo] = await db.select().from(photos).where(eq(photos.id, id));
+    return photo || undefined;
   }
 
   async createPhoto(insertPhoto: InsertPhoto): Promise<Photo> {
-    const id = this.currentPhotoId++;
-    const photo: Photo = { 
-      ...insertPhoto, 
-      id,
-      description: insertPhoto.description || '',
-      tags: insertPhoto.tags || []
-    };
-    this.photos.set(id, photo);
+    const [photo] = await db
+      .insert(photos)
+      .values(insertPhoto)
+      .returning();
     return photo;
   }
 
   async updatePhoto(id: number, updatePhoto: UpdatePhoto): Promise<Photo | undefined> {
-    const existingPhoto = this.photos.get(id);
-    if (!existingPhoto) return undefined;
-
-    const updatedPhoto: Photo = { ...existingPhoto, ...updatePhoto };
-    this.photos.set(id, updatedPhoto);
-    return updatedPhoto;
+    const [photo] = await db
+      .update(photos)
+      .set(updatePhoto)
+      .where(eq(photos.id, id))
+      .returning();
+    return photo || undefined;
   }
 
   async deletePhoto(id: number): Promise<boolean> {
-    return this.photos.delete(id);
+    const result = await db.delete(photos).where(eq(photos.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   async searchPhotos(query: string, tag?: string): Promise<Photo[]> {
-    const allPhotos = await this.getAllPhotos();
-    const searchTerm = query.toLowerCase();
+    let conditions = [];
 
-    return allPhotos.filter(photo => {
-      const matchesQuery = !query || 
-        photo.title.toLowerCase().includes(searchTerm) ||
-        (photo.description && photo.description.toLowerCase().includes(searchTerm));
+    if (query) {
+      const searchTerm = `%${query.toLowerCase()}%`;
+      conditions.push(
+        or(
+          like(photos.title, searchTerm),
+          like(photos.description, searchTerm)
+        )
+      );
+    }
 
-      const matchesTag = !tag || (photo.tags && photo.tags.includes(tag));
+    if (tag) {
+      conditions.push(arrayContains(photos.tags, [tag]));
+    }
 
-      return matchesQuery && matchesTag;
-    });
+    if (conditions.length === 0) {
+      return this.getAllPhotos();
+    }
+
+    return await db
+      .select()
+      .from(photos)
+      .where(conditions.length === 1 ? conditions[0] : conditions.reduce((acc, condition) => acc ? and(acc, condition) : condition, null))
+      .orderBy(desc(photos.id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
