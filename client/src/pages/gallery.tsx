@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Search, Upload } from "lucide-react";
+import { useAdmin } from "@/hooks/use-admin";
 import UploadZone from "@/components/upload-zone";
 import PhotoGrid from "@/components/photo-grid";
 import EditPhotoModal from "@/components/edit-photo-modal";
@@ -15,6 +16,7 @@ export default function Gallery() {
   const [selectedTag, setSelectedTag] = useState("");
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
   const [deletingPhoto, setDeletingPhoto] = useState<Photo | null>(null);
+  const { isAdmin } = useAdmin();
 
   const { data: photos = [], isLoading, refetch } = useQuery<Photo[]>({
     queryKey: ['/api/photos', { search: searchQuery, tag: selectedTag }],
@@ -83,8 +85,8 @@ export default function Gallery() {
           </div>
         </div>
 
-        {/* Upload Zone */}
-        <UploadZone onUploadComplete={handleUploadComplete} />
+        {/* Upload Zone - Admin Only */}
+        {isAdmin && <UploadZone onUploadComplete={handleUploadComplete} />}
 
         {/* Loading State */}
         {isLoading && (
@@ -118,8 +120,8 @@ export default function Gallery() {
         )}
       </div>
 
-      {/* Modals */}
-      {editingPhoto && (
+      {/* Admin-only Modals */}
+      {isAdmin && editingPhoto && (
         <EditPhotoModal
           photo={editingPhoto}
           open={true}
@@ -131,7 +133,7 @@ export default function Gallery() {
         />
       )}
 
-      {deletingPhoto && (
+      {isAdmin && deletingPhoto && (
         <DeletePhotoModal
           photo={deletingPhoto}
           open={true}

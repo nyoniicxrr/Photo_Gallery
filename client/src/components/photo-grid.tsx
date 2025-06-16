@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, Eye, Trash2 } from "lucide-react";
+import { useAdmin } from "@/hooks/use-admin";
 import type { Photo } from "@shared/schema";
 
 interface PhotoGridProps {
@@ -10,6 +11,8 @@ interface PhotoGridProps {
 }
 
 export default function PhotoGrid({ photos, onEditPhoto, onDeletePhoto }: PhotoGridProps) {
+  const { isAdmin } = useAdmin();
+  
   const handleViewPhoto = (photo: Photo) => {
     // Open photo in new tab/window for full view
     window.open(photo.url, '_blank');
@@ -30,14 +33,16 @@ export default function PhotoGrid({ photos, onEditPhoto, onDeletePhoto }: PhotoG
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
               <div className="flex space-x-3">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-none"
-                  onClick={() => onEditPhoto(photo)}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
+                {isAdmin && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-none"
+                    onClick={() => onEditPhoto(photo)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="secondary"
@@ -46,14 +51,16 @@ export default function PhotoGrid({ photos, onEditPhoto, onDeletePhoto }: PhotoG
                 >
                   <Eye className="w-4 h-4" />
                 </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  className="bg-red-500/80 backdrop-blur-sm hover:bg-red-600/80 border-none"
-                  onClick={() => onDeletePhoto(photo)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                {isAdmin && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="bg-red-500/80 backdrop-blur-sm hover:bg-red-600/80 border-none"
+                    onClick={() => onDeletePhoto(photo)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
             
