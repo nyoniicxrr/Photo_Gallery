@@ -8,15 +8,11 @@ interface PhotoGridProps {
   photos: Photo[];
   onEditPhoto: (photo: Photo) => void;
   onDeletePhoto: (photo: Photo) => void;
+  onViewPhoto: (photo: Photo) => void;
 }
 
-export default function PhotoGrid({ photos, onEditPhoto, onDeletePhoto }: PhotoGridProps) {
+export default function PhotoGrid({ photos, onEditPhoto, onDeletePhoto, onViewPhoto }: PhotoGridProps) {
   const { isAdmin } = useAdmin();
-  
-  const handleViewPhoto = (photo: Photo) => {
-    // Open photo in same tab for full view
-    window.location.href = photo.url;
-  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -49,7 +45,7 @@ export default function PhotoGrid({ photos, onEditPhoto, onDeletePhoto }: PhotoG
                   size="sm"
                   variant="secondary"
                   className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-none"
-                  onClick={() => handleViewPhoto(photo)}
+                  onClick={() => onViewPhoto(photo)}
                 >
                   <Eye className="w-4 h-4" />
                 </Button>

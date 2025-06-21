@@ -9,6 +9,7 @@ import UploadZone from "@/components/upload-zone";
 import PhotoGrid from "@/components/photo-grid";
 import EditPhotoModal from "@/components/edit-photo-modal";
 import DeletePhotoModal from "@/components/delete-photo-modal";
+import PhotoViewerModal from "@/components/photo-viewer-modal";
 import type { Photo } from "@shared/schema";
 
 export default function Gallery() {
@@ -16,6 +17,7 @@ export default function Gallery() {
   const [selectedTag, setSelectedTag] = useState("");
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
   const [deletingPhoto, setDeletingPhoto] = useState<Photo | null>(null);
+  const [viewingPhoto, setViewingPhoto] = useState<Photo | null>(null);
   const { isAdmin } = useAdmin();
 
   const { data: photos = [], isLoading, refetch } = useQuery<Photo[]>({
@@ -37,6 +39,10 @@ export default function Gallery() {
 
   const handleDeletePhoto = (photo: Photo) => {
     setDeletingPhoto(photo);
+  };
+
+  const handleViewPhoto = (photo: Photo) => {
+    setViewingPhoto(photo);
   };
 
   const handleUploadComplete = () => {
@@ -101,6 +107,7 @@ export default function Gallery() {
             photos={photos}
             onEditPhoto={handleEditPhoto}
             onDeletePhoto={handleDeletePhoto}
+            onViewPhoto={handleViewPhoto}
           />
         )}
 
@@ -144,6 +151,14 @@ export default function Gallery() {
           }}
         />
       )}
+
+      {/* Photo Viewer Modal */}
+      <PhotoViewerModal
+        photo={viewingPhoto}
+        photos={photos}
+        onClose={() => setViewingPhoto(null)}
+        onNavigate={setViewingPhoto}
+      />
     </div>
   );
 }
