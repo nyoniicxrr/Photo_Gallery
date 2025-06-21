@@ -5,8 +5,9 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { storage } from "./storage";
-import { insertPhotoSchema, updatePhotoSchema } from "@shared/schema";
+import { insertPhotoSchema, updatePhotoSchema, insertUserSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import bcrypt from "bcrypt";
 
 // Configure multer for file uploads
 const uploadDir = path.join(process.cwd(), 'uploads');
@@ -32,6 +33,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Serve uploaded files
   app.use('/uploads', express.static(uploadDir));
+
+  // Admin login route
+  app.post('/api/admin/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password are required' });
+      }
+      
+      const user = await storage.getUserByUsername(username);
+      if (!user || !user.isAdmin) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      
+      res.json({ message: 'Login successful', isAdmin: true });
+    } catch (error) {
+      res.status(500).json({ message: 'Login failed' });
+    }
+  });
+
+  // Create admin user route (for setup)
+  app.post('/api/admin/create', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password are required' });
+      }
+      
+      // Check if admin already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: 'User already exists' });
+      }
+      
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const adminUser = await storage.createUser({
+        username,
+        password: hashedPassword,
+        isAdmin: true
+      });
+      
+      res.json({ message: 'Admin user created successfully', username: adminUser.username });
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ 
+          message: fromZodError(error).toString() 
+        });
+      }
+      res.status(500).json({ message: 'Failed to create admin user' });
+    }
+  });
 
   // Get all photos
   app.get('/api/photos', async (req, res) => {

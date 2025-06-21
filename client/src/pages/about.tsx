@@ -9,14 +9,14 @@ export default function About() {
           <h2 className="text-4xl font-light mb-6">About the Photographer</h2>
           <div className="w-32 h-32 mx-auto mb-8">
             <img 
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" 
+              src="#" 
               alt="Photographer portrait" 
               className="w-full h-full object-cover rounded-full border-4 border-blue-500"
             />
           </div>
-          <h3 className="text-2xl font-medium mb-4">Alex Chen</h3>
+          <h3 className="text-2xl font-medium mb-4">Theos Zing'ombe</h3>
           <p className="text-slate-400 text-lg leading-relaxed">
-            Professional photographer with over 10 years of experience capturing life's most beautiful moments. 
+            Professional photographer with over 5 years of experience capturing life's most beautiful moments. 
             Specializing in portrait, wedding, and commercial photography with a focus on storytelling and emotional connection.
           </p>
         </div>
@@ -27,11 +27,11 @@ export default function About() {
             <ul className="space-y-3 text-slate-400">
               <li className="flex items-start">
                 <CheckCircle className="text-green-400 mt-1 mr-3 h-4 w-4 flex-shrink-0" />
-                10+ years professional photography experience
+                5+ years professional photography experience
               </li>
               <li className="flex items-start">
                 <CheckCircle className="text-green-400 mt-1 mr-3 h-4 w-4 flex-shrink-0" />
-                500+ successful wedding and portrait sessions
+                100+ successful wedding and portrait sessions
               </li>
               <li className="flex items-start">
                 <CheckCircle className="text-green-400 mt-1 mr-3 h-4 w-4 flex-shrink-0" />

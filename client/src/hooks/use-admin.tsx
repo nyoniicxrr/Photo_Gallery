@@ -1,14 +1,14 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { apiRequest } from "@/lib/queryClient";
 
 interface AdminContextType {
   isAdmin: boolean;
-  login: (password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
+  createAdmin: (username: string, password: string) => Promise<boolean>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
-
-const ADMIN_PASSWORD = "admin123"; // In a real app, this would be handled securely
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -21,13 +21,35 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const login = (password: string): boolean => {
-    if (password === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      localStorage.setItem("isAdmin", "true");
-      return true;
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      const response = await apiRequest('POST', '/api/admin/login', {
+        username,
+        password
+      });
+      
+      if (response.ok) {
+        setIsAdmin(true);
+        localStorage.setItem("isAdmin", "true");
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
     }
-    return false;
+  };
+
+  const createAdmin = async (username: string, password: string): Promise<boolean> => {
+    try {
+      const response = await apiRequest('POST', '/api/admin/create', {
+        username,
+        password
+      });
+      
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
   };
 
   const logout = () => {
@@ -36,7 +58,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AdminContext.Provider value={{ isAdmin, login, logout }}>
+    <AdminContext.Provider value={{ isAdmin, login, logout, createAdmin }}>
       {children}
     </AdminContext.Provider>
   );
