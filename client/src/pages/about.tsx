@@ -87,7 +87,10 @@ export default function About() {
             Ready to discuss your photography needs? I'd love to hear about your vision and how we can bring it to life.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-blue-600 hover:bg-blue-700 transition-colors">
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700 transition-colors"
+              onClick={() => window.open('mailto:matthewszingombe@gmail.com', '_self')}
+            >
               <Mail className="w-4 h-4 mr-2" />
               Send Message
             </Button>
