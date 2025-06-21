@@ -14,8 +14,8 @@ export default function PhotoGrid({ photos, onEditPhoto, onDeletePhoto }: PhotoG
   const { isAdmin } = useAdmin();
   
   const handleViewPhoto = (photo: Photo) => {
-    // Open photo in new tab/window for full view
-    window.open(photo.url, '_blank');
+    // Open photo in same tab for full view
+    window.location.href = photo.url;
   };
 
   return (

@@ -34,7 +34,7 @@ export default function About() {
             ) : (
               <div className="w-32 h-32 mx-auto">
                 <img 
-                  src={profilePhotoUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400"} 
+                  src={profilePhotoUrl || "#https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400"} 
                   alt="Photographer portrait" 
                   className="w-full h-full object-cover rounded-full border-4 border-blue-500"
                 />
