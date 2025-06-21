@@ -92,16 +92,13 @@ export default function PhotoViewerModal({ photo, photos, onClose, onNavigate }:
         {/* Main Image */}
         <img
           src={photo.url}
-          alt={photo.title || "Portfolio image"}
+          alt="Portfolio image"
           className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
         />
 
-        {/* Photo Info */}
-        {(photo.title || photo.description || photo.tags.length > 0) && (
+        {/* Photo Info - Only show description and tags, no title for security */}
+        {(photo.description || photo.tags.length > 0) && (
           <div className="mt-4 bg-dark-secondary/90 backdrop-blur-sm rounded-lg p-4 max-w-full">
-            {photo.title && (
-              <h3 className="text-white text-lg font-semibold mb-2">{photo.title}</h3>
-            )}
             {photo.description && (
               <p className="text-gray-300 text-sm mb-3">{photo.description}</p>
             )}
