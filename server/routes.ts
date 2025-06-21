@@ -93,28 +93,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Profile photo upload route
-  app.post('/api/profile/upload', upload.single('profile'), async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
+  app.post('/api/profile/upload', (req, res) => {
+    upload.single('profile')(req, res, async (err) => {
+      try {
+        if (err) {
+          console.error('Multer error:', err);
+          return res.status(400).json({ message: 'Upload error: ' + err.message });
+        }
+
+        if (!req.file) {
+          console.error('No file in request:', req.body);
+          return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const filename = `profile-${Date.now()}${path.extname(req.file.originalname)}`;
+        const newPath = path.join(uploadDir, filename);
+        
+        // Move file to permanent location
+        fs.renameSync(req.file.path, newPath);
+
+        const profileUrl = `/uploads/${filename}`;
+        
+        res.json({ 
+          message: 'Profile photo uploaded successfully',
+          url: profileUrl,
+          filename 
+        });
+      } catch (error) {
+        console.error('Profile upload error:', error);
+        res.status(500).json({ message: 'Failed to upload profile photo' });
       }
-
-      const filename = `profile-${Date.now()}${path.extname(req.file.originalname)}`;
-      const newPath = path.join(uploadDir, filename);
-      
-      // Move file to permanent location
-      fs.renameSync(req.file.path, newPath);
-
-      const profileUrl = `/uploads/${filename}`;
-      
-      res.json({ 
-        message: 'Profile photo uploaded successfully',
-        url: profileUrl,
-        filename 
-      });
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to upload profile photo' });
-    }
+    });
   });
 
   // Get all photos
@@ -155,19 +164,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload photos
-  app.post('/api/photos/upload', upload.array('photos', 10), async (req, res) => {
-    try {
-      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-        return res.status(400).json({ message: 'No files uploaded' });
-      }
+  app.post('/api/photos/upload', (req, res) => {
+    upload.array('photos', 10)(req, res, async (err) => {
+      try {
+        if (err) {
+          console.error('Multer error:', err);
+          return res.status(400).json({ message: 'Upload error: ' + err.message });
+        }
 
-      const uploadedPhotos = [];
+        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+          console.error('No files in request:', req.body);
+          return res.status(400).json({ message: 'No files uploaded' });
+        }
 
-      for (const file of req.files) {
-        const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}${path.extname(file.originalname)}`;
-        const newPath = path.join(uploadDir, filename);
-        
-        // Move file to permanent location
+        const uploadedPhotos = [];
+
+        for (const file of req.files) {
+          const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}${path.extname(file.originalname)}`;
+          const newPath = path.join(uploadDir, filename);
+          
+          // Move file to permanent location
         fs.renameSync(file.path, newPath);
 
         const photoData = {
@@ -192,14 +208,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({ photos: uploadedPhotos });
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ 
-          message: fromZodError(error).toString() 
-        });
+      } catch (error: any) {
+        console.error('Photo upload error:', error);
+        if (error.name === 'ZodError') {
+          return res.status(400).json({ 
+            message: fromZodError(error).toString() 
+          });
+        }
+        res.status(500).json({ message: 'Failed to upload photos' });
       }
-      res.status(500).json({ message: 'Failed to upload photos' });
-    }
+    });
   });
 
   // Update photo
