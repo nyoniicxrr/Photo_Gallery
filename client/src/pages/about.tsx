@@ -91,9 +91,13 @@ export default function About() {
               <Mail className="w-4 h-4 mr-2" />
               Send Message
             </Button>
-            <Button variant="outline" className="border-slate-600 hover:bg-slate-700 transition-colors">
+            <Button 
+              variant="outline" 
+              className="border-slate-600 hover:bg-slate-700 transition-colors"
+              onClick={() => window.open('tel:+265888940764', '_self')}
+            >
               <Phone className="w-4 h-4 mr-2" />
-              Call Now
+              +265 888 940 764
             </Button>
           </div>
         </div>
