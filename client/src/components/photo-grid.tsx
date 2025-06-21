@@ -19,16 +19,18 @@ export default function PhotoGrid({ photos, onEditPhoto, onDeletePhoto }: PhotoG
   };
 
   return (
-    <div className="masonry-grid">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {photos.map((photo) => (
-        <div key={photo.id} className="masonry-item group">
+        <div key={photo.id} className="group">
           <div className="bg-dark-secondary rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] relative">
-            <img
-              src={photo.url}
-              alt={photo.title}
-              className="w-full h-auto object-cover"
-              loading="lazy"
-            />
+            <div className="aspect-square overflow-hidden">
+              <img
+                src={photo.url}
+                alt="Portfolio image"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
             
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -66,7 +68,6 @@ export default function PhotoGrid({ photos, onEditPhoto, onDeletePhoto }: PhotoG
             
             {/* Photo Info */}
             <div className="p-4">
-              <h4 className="font-medium mb-1 truncate">{photo.title}</h4>
               {photo.description && (
                 <p className="text-sm text-gray-400 mb-2 line-clamp-2">
                   {photo.description}
