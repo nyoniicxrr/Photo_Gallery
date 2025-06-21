@@ -92,6 +92,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile photo upload route
+  app.post('/api/profile/upload', upload.single('profile'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      const filename = `profile-${Date.now()}${path.extname(req.file.originalname)}`;
+      const newPath = path.join(uploadDir, filename);
+      
+      // Move file to permanent location
+      fs.renameSync(req.file.path, newPath);
+
+      const profileUrl = `/uploads/${filename}`;
+      
+      res.json({ 
+        message: 'Profile photo uploaded successfully',
+        url: profileUrl,
+        filename 
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to upload profile photo' });
+    }
+  });
+
   // Get all photos
   app.get('/api/photos', async (req, res) => {
     try {

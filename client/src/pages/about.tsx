@@ -1,18 +1,45 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, CheckCircle } from "lucide-react";
+import { useAdmin } from "@/hooks/use-admin";
+import ProfilePhotoUpload from "@/components/profile-photo-upload";
 
 export default function About() {
+  const { isAdmin } = useAdmin();
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>("");
+
+  useEffect(() => {
+    const savedUrl = localStorage.getItem('profilePhotoUrl');
+    if (savedUrl) {
+      setProfilePhotoUrl(savedUrl);
+    }
+  }, []);
+
+  const handlePhotoUpdate = (newUrl: string) => {
+    setProfilePhotoUrl(newUrl);
+    localStorage.setItem('profilePhotoUrl', newUrl);
+  };
+
   return (
     <div className="pt-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-light mb-6">About the Photographer</h2>
-          <div className="w-32 h-32 mx-auto mb-8">
-            <img 
-              src="#" 
-              alt="Photographer portrait" 
-              className="w-full h-full object-cover rounded-full border-4 border-blue-500"
-            />
+          <div className="mb-8">
+            {isAdmin ? (
+              <ProfilePhotoUpload 
+                currentPhotoUrl={profilePhotoUrl}
+                onPhotoUpdate={handlePhotoUpdate}
+              />
+            ) : (
+              <div className="w-32 h-32 mx-auto">
+                <img 
+                  src={profilePhotoUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400"} 
+                  alt="Photographer portrait" 
+                  className="w-full h-full object-cover rounded-full border-4 border-blue-500"
+                />
+              </div>
+            )}
           </div>
           <h3 className="text-2xl font-medium mb-4">Theos Zing'ombe</h3>
           <p className="text-slate-400 text-lg leading-relaxed">
